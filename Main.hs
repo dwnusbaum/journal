@@ -4,30 +4,22 @@ module Main where
 
 import Log
 
-import Prelude hiding (log)
+import Control.Monad.Trans.Class
 import System.Console.Haskeline
 import System.Environment
 
-data Option = Edit | Help | New | Delete
-
-logger :: Option -> [String] -> InputT IO ()
-logger Edit   = editLog
-logger Help   = helpLog
-logger New    = newLog
-logger Delete = deleteLog
-
-parseArgs :: [String] -> (Option, [String])
-parseArgs ("--edit"   :xs) = (Edit, xs)
-parseArgs ("-e"       :xs) = (Edit, xs)
-parseArgs ("--help"   :xs) = (Help, xs)
-parseArgs ("-h"       :xs) = (Help, xs)
-parseArgs ("--new"    :xs) = (New, xs)
-parseArgs ("-n"       :xs) = (New, xs)
-parseArgs ("--delete" :xs) = (Delete, xs)
-parseArgs ("-d"       :xs) = (Delete, xs)
-parseArgs xs               = (Help, xs)
+logger :: [String] -> InputT IO ()
+logger ("edit"  :xs) = editLog xs
+logger ("e"     :xs) = editLog xs
+logger ("help"  :xs) = helpLog xs
+logger ("h"     :xs) = helpLog xs
+logger ("new"   :xs) = lift $ newLog xs
+logger ("n"     :xs) = lift $ newLog xs
+logger ("remove":xs) = lift $ removeLog xs
+logger ("r"     :xs) = lift $ removeLog xs
+logger xs            = helpLog xs
 
 main :: IO ()
-main = getArgs >>= runInputT defaultSettings . uncurry logger . parseArgs
+main = getArgs >>= runInputT defaultSettings . logger
 
 
