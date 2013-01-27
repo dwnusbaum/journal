@@ -38,12 +38,21 @@ helpLog _ = outputStrLn
 --Creating logs
 
 newLog :: [String] -> IO ()
-newLog = foldr (\x -> (>>) $ openLog x ReadWriteMode >>= \h -> creationEntry h >> hClose h) $ return ()
+newLog = foldr (\x -> (>>) $ openLog x ReadWriteMode >>= \h -> creationEntry h >> creationMessage x >> hClose h) $ return ()
 
 creationEntry :: Handle -> IO ()
 creationEntry h = getCurrentTime >>= hPutStrLn h . (++) "Log created on " . show . toGregorian . utctDay
 
+creationMessage :: String -> IO ()
+creationMessage x = putStrLn $ "Log `" ++ x ++ "` was created"
+
 --Removing logs
 
 removeLog :: [String] -> IO ()
-removeLog = foldr (\x -> (>>) $ logsFolder x >>= \f -> removeFile f >> putStrLn ("Log " ++ x ++ " was removed")) $ return ()
+removeLog = foldr (\x -> (>>) $ logsFolder x >>= \f -> ensureRemoveFile f >> removeMessage x) $ return ()
+
+ensureRemoveFile :: FilePath -> IO ()
+ensureRemoveFile = removeFile
+
+removeMessage :: String -> IO ()
+removeMessage x = putStrLn $ "Log `" ++ x ++ "` was removed"
