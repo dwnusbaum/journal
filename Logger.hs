@@ -8,22 +8,17 @@ module Logger
     , viewLog
     ) where
 
-import Log
---import ParseLog
+import Entry
 
 import Control.Monad
 import Control.Monad.IO.Class
-import Data.Time.Calendar
-import Data.Time.Clock
+import Data.Time.LocalTime
 import System.Console.Haskeline
 import System.Directory
 import System.IO
 import System.IO.Error
 
 --Utility Functions
-
-today :: IO Day
-today = liftM utctDay getCurrentTime
 
 logsFolder :: String -> IO FilePath
 logsFolder x = getHomeDirectory >>= \h -> return $ h ++ "/Dropbox/logs/" ++ x ++ ".log"
@@ -40,8 +35,8 @@ editLog (n:e) = liftIO $ do
     eitherLog <- tryIOError $ openLog n AppendMode
     case eitherLog of
         Left er ->
-            when (isDoesNotExistError er) $ newLog [n] >> today >>= appendLog n . makeEntry e
-        Right h -> today >>= hAppendLog h . makeEntry e
+            when (isDoesNotExistError er) $ newLog [n] >> getZonedTime >>= appendLog n . makeEntry e
+        Right h -> getZonedTime >>= hAppendLog h . makeEntry e
 
 appendLog :: String -> Entry -> IO ()
 appendLog n e = openLog n AppendMode >>= \h -> hPrint h e >> hClose h
@@ -62,10 +57,7 @@ helpLog _ = outputStrLn
 --Creating logs
 
 newLog :: [String] -> IO ()
-newLog = foldr (\x -> (>>) $ openLog x ReadWriteMode >>= \h -> creationEntry x h >> hClose h) $ return ()
-
-creationEntry :: String -> Handle -> IO ()
-creationEntry name h = today >>= hPutStrLn h . (++) (name ++ "\nCreated on ") . showGregorian
+newLog = foldr (\n -> (>>) $ openLog n ReadWriteMode >>= \h ->  hPutStrLn h n >> hClose h) $ return ()
 
 --Removing logs
 
