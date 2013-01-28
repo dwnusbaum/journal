@@ -9,7 +9,7 @@ module Logger
     ) where
 
 import Log
-import ParseLog
+--import ParseLog
 
 import Control.Monad
 import Control.Monad.IO.Class
@@ -18,36 +18,36 @@ import Data.Time.Clock
 import System.Console.Haskeline
 import System.Directory
 import System.IO
+import System.IO.Error
 
 --Utility Functions
-
-logsFolder :: String -> IO FilePath
-logsFolder x = getHomeDirectory >>= \h -> return $ h ++ "/Dropbox/logs/" ++ x ++ ".log"
 
 today :: IO Day
 today = liftM utctDay getCurrentTime
 
-printLog :: Maybe Log -> IO ()
-printLog Nothing  = return ()
-printLog (Just x) = print x
+logsFolder :: String -> IO FilePath
+logsFolder x = getHomeDirectory >>= \h -> return $ h ++ "/Dropbox/logs/" ++ x ++ ".log"
 
 openLog :: String -> IOMode -> IO Handle
 openLog name mode = logsFolder name >>= flip openFile mode
 
-readLog :: String -> IOMode -> IO (Maybe Log)
-readLog name mode = openLog name mode >>= hGetContents >>= parse name
-
-appendLog :: String -> Entry -> IO ()
-appendLog name e = undefined
-
 --Writing to log files
 
 editLog :: [String] -> InputT IO ()
-editLog []     = undefined
-editLog [x]    = undefined
-editLog (x:xs) = liftIO (readLog x AppendMode) >>= \l -> case l of
-    Nothing -> return ()
-    Just (Log name day es) -> liftIO (today >>= \d -> void $ return $ Log name day $ es ++ [Entry ((length es) + 1) d (concat xs)])
+editLog []    = helpLog ["edit"]
+editLog [_]   = undefined
+editLog (n:e) = liftIO $ do
+    eitherLog <- tryIOError $ openLog n AppendMode
+    case eitherLog of
+        Left er ->
+            when (isDoesNotExistError er) $ newLog [n] >> today >>= appendLog n . makeEntry e
+        Right h -> today >>= hAppendLog h . makeEntry e
+
+appendLog :: String -> Entry -> IO ()
+appendLog n e = openLog n AppendMode >>= flip hPrint e
+
+hAppendLog :: Handle -> Entry -> IO ()
+hAppendLog = hPrint
 
 --Help using the logger
 
@@ -65,7 +65,7 @@ newLog :: [String] -> IO ()
 newLog = foldr (\x -> (>>) $ openLog x ReadWriteMode >>= \h -> creationEntry x h >> hClose h) $ return ()
 
 creationEntry :: String -> Handle -> IO ()
-creationEntry name h = today >>= hPutStrLn h . (++) (name ++ "\n0. Created on ") . showGregorian
+creationEntry name h = today >>= hPutStrLn h . (++) (name ++ "\nCreated on ") . showGregorian
 
 --Removing logs
 
@@ -78,4 +78,4 @@ ensureRemoveFile = removeFile
 --Viewing Logs
 
 viewLog :: [String] -> IO ()
-viewLog = foldr (\x -> (>>) $ readLog x ReadMode >>= printLog) $ return ()
+viewLog = foldr (\x -> (>>) $ openFile x ReadMode >>= \h -> hGetContents h >>= putStrLn >> hClose h) $ return ()

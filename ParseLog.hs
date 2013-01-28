@@ -1,4 +1,4 @@
-{-# OPTIONS_GHC -Wall -fno-warn-unused-do-bind #-}
+{-{-# OPTIONS_GHC -Wall -fno-warn-unused-do-bind #-}
 
 module ParseLog
     ( parse
@@ -42,3 +42,4 @@ parseDay = do
     char '-'
     day   <- liftM read $ many1 digit
     return $ fromGregorian year month day
+-}

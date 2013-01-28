@@ -3,19 +3,23 @@
 module Log
     ( Log(..)
     , Entry(..)
+    , makeEntry
     ) where
 
 import Data.Time.Calendar
 
 data Log = Log String Day [Entry]
 
-instance Show Log where
-    show (Log n d xs) = n ++ "\n" ++ show (length xs) ++ " entries. Created on: " ++ showLn d ++ concatMap showLn xs
+data Entry = Entry Day String
 
-data Entry = Entry Int Day String
+instance Show Log where
+    show (Log n d xs) = n ++ "\n" ++ "Created on: " ++ showLn d ++ unwords (map showLn xs)
 
 instance Show Entry where
-    show (Entry n d s) = show n ++ ". " ++ showLn d ++ s
+    show (Entry d s) = "|> " ++ showLn d ++ s
 
 showLn :: (Show a) => a -> String
 showLn s = show s ++ "\n"
+
+makeEntry :: [String] -> Day -> Entry
+makeEntry e d = Entry d $ unwords e

@@ -23,5 +23,3 @@ logger xs            = helpLog xs
 
 main :: IO ()
 main = getArgs >>= runInputT defaultSettings . logger
-
-
