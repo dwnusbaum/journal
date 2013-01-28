@@ -2,7 +2,7 @@
 
 module Main where
 
-import Log
+import Logger
 
 import Control.Monad.Trans.Class
 import System.Console.Haskeline
@@ -17,6 +17,8 @@ logger ("new"   :xs) = lift $ newLog xs
 logger ("n"     :xs) = lift $ newLog xs
 logger ("remove":xs) = lift $ removeLog xs
 logger ("r"     :xs) = lift $ removeLog xs
+logger ("view"  :xs) = lift $ viewLog xs
+logger ("v"     :xs) = lift $ viewLog xs
 logger xs            = helpLog xs
 
 main :: IO ()
