@@ -44,10 +44,10 @@ editLog (n:e) = liftIO $ do
         Right h -> today >>= hAppendLog h . makeEntry e
 
 appendLog :: String -> Entry -> IO ()
-appendLog n e = openLog n AppendMode >>= flip hPrint e
+appendLog n e = openLog n AppendMode >>= \h -> hPrint h e >> hClose h
 
 hAppendLog :: Handle -> Entry -> IO ()
-hAppendLog = hPrint
+hAppendLog h e = hPrint h e >> hClose h
 
 --Help using the logger
 
@@ -78,4 +78,4 @@ ensureRemoveFile = removeFile
 --Viewing Logs
 
 viewLog :: [String] -> IO ()
-viewLog = foldr (\x -> (>>) $ openFile x ReadMode >>= \h -> hGetContents h >>= putStrLn >> hClose h) $ return ()
+viewLog = foldr (\x -> (>>) $ logsFolder x >>= \f -> openFile f ReadMode >>= \h -> hGetContents h >>= putStrLn >> hClose h) $ return ()
