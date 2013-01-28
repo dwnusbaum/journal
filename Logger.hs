@@ -11,31 +11,21 @@ module Logger
 import Log
 import ParseLog
 
+import Control.Monad
+import Control.Monad.IO.Class
 import Data.Time.Calendar
 import Data.Time.Clock
 import System.Console.Haskeline
 import System.Directory
 import System.IO
 
---Data Type
-
-data Log = Log String Day [Entry]
-
-instance Show Log where
-    show (Log n d xs) = n ++ "\n" ++ show (length xs) ++ " entries. Created on: " ++ showLn d ++ concatMap showLn xs
-
-data Entry = Entry Int Day String
-
-instance Show Entry where
-    show (Entry n d s) = show n ++ ". " ++ showLn d ++ s
-
-showLn :: (Show a) => a -> String
-showLn s = show s ++ "\n"
-
 --Utility Functions
 
 logsFolder :: String -> IO FilePath
 logsFolder x = getHomeDirectory >>= \h -> return $ h ++ "/Dropbox/logs/" ++ x ++ ".log"
+
+today :: IO Day
+today = liftM utctDay getCurrentTime
 
 printLog :: Maybe Log -> IO ()
 printLog Nothing  = return ()
@@ -47,10 +37,17 @@ openLog name mode = logsFolder name >>= flip openFile mode
 readLog :: String -> IOMode -> IO (Maybe Log)
 readLog name mode = openLog name mode >>= hGetContents >>= parse name
 
+appendLog :: String -> Entry -> IO ()
+appendLog name e = undefined
+
 --Writing to log files
 
 editLog :: [String] -> InputT IO ()
-editLog = undefined
+editLog []     = undefined
+editLog [x]    = undefined
+editLog (x:xs) = liftIO (readLog x AppendMode) >>= \l -> case l of
+    Nothing -> return ()
+    Just (Log name day es) -> liftIO (today >>= \d -> void $ return $ Log name day $ es ++ [Entry ((length es) + 1) d (concat xs)])
 
 --Help using the logger
 
@@ -68,7 +65,7 @@ newLog :: [String] -> IO ()
 newLog = foldr (\x -> (>>) $ openLog x ReadWriteMode >>= \h -> creationEntry x h >> hClose h) $ return ()
 
 creationEntry :: String -> Handle -> IO ()
-creationEntry name h = getCurrentTime >>= hPutStrLn h . (++) (name ++ "\n0. Created on ") . showGregorian . utctDay
+creationEntry name h = today >>= hPutStrLn h . (++) (name ++ "\n0. Created on ") . showGregorian
 
 --Removing logs
 
