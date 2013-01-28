@@ -29,7 +29,7 @@ openLog name mode = logsFolder name >>= flip openFile mode
 --Writing to log files
 
 editLog :: [String] -> InputT IO ()
-editLog []    = helpLog ["edit"]
+editLog []    = liftIO $ helpLog ["edit"]
 editLog [_]   = undefined
 editLog (n:e) = liftIO $ do
     eitherLog <- tryIOError $ openLog n AppendMode
@@ -46,8 +46,8 @@ hAppendLog h e = hPrint h e >> hClose h
 
 --Help using the logger
 
-helpLog :: [String] -> InputT IO ()
-helpLog _ = outputStrLn
+helpLog :: [String] -> IO ()
+helpLog _ = putStrLn
     "Usage: \n\
     \log edit   <logs>       Edit the given log files\n\
     \log help   <command>    If no command is given, display this message. Otherwise, display specific help message for a command.\n\
