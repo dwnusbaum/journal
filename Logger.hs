@@ -17,6 +17,23 @@ import System.Console.Haskeline
 import System.Directory
 import System.IO
 
+--Data Type
+
+data Log = Log String Day [Entry]
+
+instance Show Log where
+    show (Log n d xs) = n ++ "\n" ++ show (length xs) ++ " entries. Created on: " ++ showLn d ++ concatMap showLn xs
+
+data Entry = Entry Int Day String
+
+instance Show Entry where
+    show (Entry n d s) = show n ++ ". " ++ showLn d ++ s
+
+showLn :: (Show a) => a -> String
+showLn s = show s ++ "\n"
+
+--Utility Functions
+
 logsFolder :: String -> IO FilePath
 logsFolder x = getHomeDirectory >>= \h -> return $ h ++ "/Dropbox/logs/" ++ x ++ ".log"
 
@@ -28,7 +45,7 @@ openLog :: String -> IOMode -> IO Handle
 openLog name mode = logsFolder name >>= flip openFile mode
 
 readLog :: String -> IOMode -> IO (Maybe Log)
-readLog name mode = openLog name mode >>= hGetContents >>= parse
+readLog name mode = openLog name mode >>= hGetContents >>= parse name
 
 --Writing to log files
 

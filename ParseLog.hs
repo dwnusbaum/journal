@@ -12,20 +12,20 @@ import Text.Parsec hiding (parse)
 
 type Parser = Parsec String ()
 
-parse :: String -> IO (Maybe Log)
-parse input = validate $ runParser parseLog () "log" input
+parse :: String -> String -> IO (Maybe Log)
+parse name input = validate name $ runParser (parseLog name) () "log" input
 
-validate :: Either ParseError Log -> IO (Maybe Log)
-validate (Left  err) = print err >> return Nothing
-validate (Right val) = return $ Just val
+validate :: String -> Either ParseError Log -> IO (Maybe Log)
+validate name (Left  err) = putStrLn ("Log " ++ name ++ " could could not be opened due to bad formatting\n" ++ show err) >> return Nothing
+validate _    (Right val) = return $ Just val
 
-parseLog :: Parser Log
-parseLog = do
-    name    <- many1 alphaNum
+parseLog :: String -> Parser Log
+parseLog name = do
+    name'    <- string name
     spaces >> many1 digit
     day     <- string ". Created on " >> parseDay
     entries <- spaces >> parseEntry `sepBy` char '\n'
-    return $ Log name day entries
+    return $ Log name' day entries
 
 parseEntry :: Parser Entry
 parseEntry = do
