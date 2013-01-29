@@ -28,15 +28,18 @@ openLog name mode = logsFolder name >>= flip openFile mode
 
 --Writing to log files
 
-editLog :: [String] -> InputT IO ()
+editLog :: String -> InputT IO ()
+editLog n = undefined
+{-
 editLog []    = liftIO $ helpLog ["edit"]
-editLog [_]   = undefined
+editLog [n]   = undefined
 editLog (n:e) = liftIO $ do
     eitherLog <- tryIOError $ openLog n AppendMode
     case eitherLog of
         Left er ->
-            when (isDoesNotExistError er) $ newLog [n] >> getZonedTime >>= appendLog n . makeEntry e
+            when (isDoesNotExistError er) $ newLog n >> getZonedTime >>= appendLog n . makeEntry e
         Right h -> getZonedTime >>= hAppendLog h . makeEntry e
+-}
 
 appendLog :: String -> Entry -> IO ()
 appendLog n e = openLog n AppendMode >>= \h -> hPrint h e >> hClose h
@@ -46,7 +49,7 @@ hAppendLog h e = hPrint h e >> hClose h
 
 --Help using the logger
 
-helpLog :: [String] -> IO ()
+helpLog :: String -> IO ()
 helpLog _ = putStrLn
     "Usage: \n\
     \log edit   <logs>       Edit the given log files\n\
@@ -56,18 +59,18 @@ helpLog _ = putStrLn
 
 --Creating logs
 
-newLog :: [String] -> IO ()
-newLog = foldr (\n -> (>>) $ openLog n ReadWriteMode >>= \h ->  hPutStrLn h n >> hClose h) $ return ()
+newLog :: String -> IO ()
+newLog n = openLog n ReadWriteMode >>= \h -> hPutStrLn h n >> hClose h
 
 --Removing logs
 
-removeLog :: [String] -> IO ()
-removeLog = foldr (\x -> (>>) $ logsFolder x >>= \f -> ensureRemoveFile f) $ return ()
+removeLog :: String -> IO ()
+removeLog n = logsFolder n >>= ensureRemoveFile
 
 ensureRemoveFile :: FilePath -> IO ()
 ensureRemoveFile = removeFile
 
 --Viewing Logs
 
-viewLog :: [String] -> IO ()
-viewLog = foldr (\x -> (>>) $ logsFolder x >>= \f -> openFile f ReadMode >>= \h -> hGetContents h >>= putStrLn >> hClose h) $ return ()
+viewLog :: String -> IO ()
+viewLog n = logsFolder n >>= flip openFile ReadMode >>= \h -> hGetContents h >>= putStrLn >> hClose h
