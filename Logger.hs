@@ -29,17 +29,11 @@ openLog name mode = logsFolder name >>= flip openFile mode
 --Writing to log files
 
 editLog :: String -> InputT IO ()
-editLog n = undefined
-{-
-editLog []    = liftIO $ helpLog ["edit"]
-editLog [n]   = undefined
-editLog (n:e) = liftIO $ do
-    eitherLog <- tryIOError $ openLog n AppendMode
+editLog n = do
+    eitherLog <- liftIO $ tryIOError $ openLog n AppendMode
     case eitherLog of
-        Left er ->
-            when (isDoesNotExistError er) $ newLog n >> getZonedTime >>= appendLog n . makeEntry e
-        Right h -> getZonedTime >>= hAppendLog h . makeEntry e
--}
+        Left err -> undefined --when (isDoesNotExistError err) $ newLog n >> getZonedTime >>= appendLog n . makeEntry e
+        Right ha -> undefined --getZonedTime >>= hAppendLog h . makeEntry e
 
 appendLog :: String -> Entry -> IO ()
 appendLog n e = openLog n AppendMode >>= \h -> hPrint h e >> hClose h
