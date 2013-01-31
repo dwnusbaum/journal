@@ -11,3 +11,4 @@ cabal-Version:       >=1.2
 executable log
   Main-is:           Main.hs
   Build-Depends:     base >= 3, directory, haskeline, old-locale, time, transformers
+  ghc-options:       -Wall -fno-warn-unused-do-bind -funbox-strict-fields -O

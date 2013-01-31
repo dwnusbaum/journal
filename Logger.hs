@@ -21,7 +21,7 @@ import System.IO.Error
 --Utility Functions
 
 logsFolder :: String -> IO FilePath
-logsFolder x = getHomeDirectory >>= \h -> return $ h ++ "/Dropbox/logs/" ++ x ++ ".log"
+logsFolder x = liftM (\h -> h ++ "/Dropbox/logs/" ++ x ++ ".log") getHomeDirectory
 
 openLog :: String -> IOMode -> IO Handle
 openLog name mode = logsFolder name >>= flip openFile mode
@@ -35,7 +35,7 @@ editLog n = do
         Left  e -> when (isDoesNotExistError e) $ liftIO (newLog n) >> editLog n
         Right h -> getInputLine "<Log entry>: " >>= \i -> case i of
             Nothing -> return ()
-            Just i'  -> liftIO $ getZonedTime >>= hAppendLog h . flip Entry i'
+            Just i' -> liftIO $ getZonedTime >>= hAppendLog h . flip Entry i'
 
 hAppendLog :: Handle -> Entry -> IO ()
 hAppendLog h e = hPrint h e >> hClose h
@@ -67,7 +67,8 @@ helpLog "view" = putStrLn
 helpLog _ = putStrLn
     "log: \n\
     \log edit   <logs>    Edit the given log files\n\
-    \log help   <command> If no command is given, display this message. Otherwise, display specific help message for a command.\n\
+    \log help   <command> If no command is given, display this message.\n\
+    \                     Otherwise, display specific help message for a command.\n\
     \log new    <names>   Create log files with the given names\n\
     \log delete <logs>    Delete the given log files"
 
