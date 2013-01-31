@@ -32,11 +32,10 @@ editLog :: String -> InputT IO ()
 editLog n = do
     eitherLog <- liftIO $ tryIOError $ openLog n AppendMode
     case eitherLog of
-        Left err -> undefined --when (isDoesNotExistError err) $ newLog n >> getZonedTime >>= appendLog n . makeEntry e
-        Right ha -> undefined --getZonedTime >>= hAppendLog h . makeEntry e
-
-appendLog :: String -> Entry -> IO ()
-appendLog n e = openLog n AppendMode >>= \h -> hPrint h e >> hClose h
+        Left  e -> when (isDoesNotExistError e) $ liftIO (newLog n) >> editLog n
+        Right h -> getInputLine "<Log entry>: " >>= \i -> case i of
+            Nothing -> return ()
+            Just i'  -> liftIO $ getZonedTime >>= hAppendLog h . flip Entry i'
 
 hAppendLog :: Handle -> Entry -> IO ()
 hAppendLog h e = hPrint h e >> hClose h
@@ -44,12 +43,33 @@ hAppendLog h e = hPrint h e >> hClose h
 --Help using the logger
 
 helpLog :: String -> IO ()
+helpLog "edit" = putStrLn
+    "edit: \n\
+    \log edit <log name>\n\
+    \    Opens the given log for editing via the terminal.\n\
+    \    If the log file does not exist, it is created."
+helpLog "help" = putStrLn
+    "help: \n\
+    \log help <command>\n\
+    \    Display specific help message for the given command."
+helpLog "new" = putStrLn
+    "new: \n\
+    \log new <name>\n\
+    \    Creates a new log file with the given name."
+helpLog "remove" = putStrLn
+    "remove: \n\
+    \log help <log name>\n\
+    \    Removes any log file with the given name"
+helpLog "view" = putStrLn
+    "view: \n\
+    \log help <log name>\n\
+    \    Displays any log file with the given name"
 helpLog _ = putStrLn
-    "Usage: \n\
-    \log edit   <logs>       Edit the given log files\n\
-    \log help   <command>    If no command is given, display this message. Otherwise, display specific help message for a command.\n\
-    \log new    <names>      Create log files with the given names\n\
-    \log delete <logs>       Delete the given log files"
+    "log: \n\
+    \log edit   <logs>    Edit the given log files\n\
+    \log help   <command> If no command is given, display this message. Otherwise, display specific help message for a command.\n\
+    \log new    <names>   Create log files with the given names\n\
+    \log delete <logs>    Delete the given log files"
 
 --Creating logs
 

@@ -2,8 +2,6 @@
 
 module Entry
     ( Entry(..)
-    , makeEntry
-    , showDay
     ) where
 
 import Data.Time.Format
@@ -16,9 +14,4 @@ instance Show Entry where
     show (Entry d s) = showDay d ++ "\n|> " ++ s
 
 showDay :: ZonedTime -> String
-showDay = formatTime defaultTimeLocale "%a %d %Y - %I:%M %p"
-
-makeEntry :: [String] -> ZonedTime -> Entry
-makeEntry e d = Entry d $ unwords e
-
-
+showDay = formatTime defaultTimeLocale "%a, %b %d, %Y - %I:%M %p"

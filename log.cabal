@@ -10,4 +10,4 @@ cabal-Version:       >=1.2
 
 executable log
   Main-is:           Main.hs
-  Build-Depends:     base >= 3, containers, directory, haskeline, old-locale, time, transformers
+  Build-Depends:     base >= 3, directory, haskeline, old-locale, time, transformers
