@@ -44,25 +44,20 @@ hAppendLog h e = hPrint h e >> hClose h
 
 helpLog :: String -> IO ()
 helpLog "edit" = putStrLn
-    "edit\n\
-    \Syntax:  log edit <log name>\n\
-    \Action:  Opens the given log for editing via the terminal.\n\
-    \         If the log file does not exist, it is created."
+    "Syntax: log edit <log name>\n\
+    \Action: Opens the given log for editing via the terminal.\n\
+    \        If the log file does not exist, it is created."
 helpLog "help" = putStrLn
-    "help\n\
-    \Syntax: log help <command>\n\
+    "Syntax: log help <command>\n\
     \Action: Display specific help message for the given command."
 helpLog "new" = putStrLn
-    "new\n\
-    \Syntax: log new <name>\n\
+    "Syntax: log new <name>\n\
     \Action: Creates a new log file with the given name."
 helpLog "remove" = putStrLn
-    "remove \n\
-    \Syntax: log help <log name>\n\
+    "Syntax: log help <log name>\n\
     \Action: Removes any log file with the given name"
 helpLog "view" = putStrLn
-    "view\n\
-    \Syntax: log help <log name>\n\
+    "Syntax: log help <log name>\n\
     \Action: Displays any log file with the given name"
 helpLog _ = putStrLn
     "Usage:\n\
