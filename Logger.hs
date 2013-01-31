@@ -44,33 +44,33 @@ hAppendLog h e = hPrint h e >> hClose h
 
 helpLog :: String -> IO ()
 helpLog "edit" = putStrLn
-    "edit: \n\
-    \log edit <log name>\n\
-    \    Opens the given log for editing via the terminal.\n\
-    \    If the log file does not exist, it is created."
+    "edit\n\
+    \Syntax:  log edit <log name>\n\
+    \Action:  Opens the given log for editing via the terminal.\n\
+    \         If the log file does not exist, it is created."
 helpLog "help" = putStrLn
-    "help: \n\
-    \log help <command>\n\
-    \    Display specific help message for the given command."
+    "help\n\
+    \Syntax: log help <command>\n\
+    \Action: Display specific help message for the given command."
 helpLog "new" = putStrLn
-    "new: \n\
-    \log new <name>\n\
-    \    Creates a new log file with the given name."
+    "new\n\
+    \Syntax: log new <name>\n\
+    \Action: Creates a new log file with the given name."
 helpLog "remove" = putStrLn
-    "remove: \n\
-    \log help <log name>\n\
-    \    Removes any log file with the given name"
+    "remove \n\
+    \Syntax: log help <log name>\n\
+    \Action: Removes any log file with the given name"
 helpLog "view" = putStrLn
-    "view: \n\
-    \log help <log name>\n\
-    \    Displays any log file with the given name"
+    "view\n\
+    \Syntax: log help <log name>\n\
+    \Action: Displays any log file with the given name"
 helpLog _ = putStrLn
-    "log: \n\
-    \log edit   <logs>    Edit the given log files\n\
+    "Usage:\n\
+    \log edit   <logs>    Edit the given log file\n\
     \log help   <command> If no command is given, display this message.\n\
     \                     Otherwise, display specific help message for a command.\n\
-    \log new    <names>   Create log files with the given names\n\
-    \log delete <logs>    Delete the given log files"
+    \log new    <names>   Creates a log file with the given name\n\
+    \log remove <logs>    Removes the given log file"
 
 --Creating logs
 

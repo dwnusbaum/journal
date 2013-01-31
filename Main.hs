@@ -9,15 +9,15 @@ import System.Environment
 
 logger :: [String] -> IO ()
 logger ["edit"  ,x] = runInputT defaultSettings $ editLog x
-logger ["e"     ,x] = runInputT defaultSettings $ editLog x
+logger ["-e"    ,x] = runInputT defaultSettings $ editLog x
 logger ["help"  ,x] = helpLog   x
-logger ["h"     ,x] = helpLog   x
+logger ["-h"    ,x] = helpLog   x
 logger ["new"   ,x] = newLog    x
-logger ["n"     ,x] = newLog    x
+logger ["-n"    ,x] = newLog    x
 logger ["remove",x] = removeLog x
-logger ["r"     ,x] = removeLog x
+logger ["-r"    ,x] = removeLog x
 logger ["view"  ,x] = viewLog   x
-logger ["v"     ,x] = viewLog   x
+logger ["-v"    ,x] = viewLog   x
 logger _            = helpLog   ""
 
 main :: IO ()
