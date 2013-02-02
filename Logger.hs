@@ -74,11 +74,17 @@ newLog n = openLog n ReadWriteMode >>= \h -> hPutStrLn h n >> hClose h
 
 --Removing logs
 
-removeLog :: String -> IO ()
-removeLog n = logsFolder n >>= ensureRemoveFile
+removeLog :: String -> InputT IO ()
+removeLog n = liftIO (logsFolder n) >>= ensureRemoveFile
 
-ensureRemoveFile :: FilePath -> IO ()
-ensureRemoveFile = removeFile
+ensureRemoveFile :: FilePath -> InputT IO ()
+ensureRemoveFile f = do
+    i <- getInputLine $ "Are you sure you want to remove \'" ++ f ++ "\'? Enter Yes or No: "
+    case i of
+        Nothing    -> return ()
+        Just "Yes" -> liftIO $ removeFile f
+        Just "Y"   -> liftIO $ removeFile f
+        Just _     -> return ()
 
 --Viewing Logs
 
