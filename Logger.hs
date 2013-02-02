@@ -21,7 +21,7 @@ import System.IO.Error
 --Utility Functions
 
 logsFolder :: String -> IO FilePath
-logsFolder x = liftM (\h -> h ++ "/Dropbox/logs/" ++ x ++ ".log") getHomeDirectory
+logsFolder x = liftM (\h -> h ++ "/Dropbox/logs/" ++ x ++ ".hlog") getHomeDirectory
 
 openLog :: String -> IOMode -> IO Handle
 openLog name mode = logsFolder name >>= flip openFile mode
@@ -79,12 +79,11 @@ removeLog n = liftIO (logsFolder n) >>= ensureRemoveFile
 
 ensureRemoveFile :: FilePath -> InputT IO ()
 ensureRemoveFile f = do
-    i <- getInputLine $ "Are you sure you want to remove \'" ++ f ++ "\'? Enter Yes or No: "
+    i <- getInputLine $ "Are you sure you want to remove \'" ++ f ++ "\'? Enter (Y)es or (N)o: "
     case i of
-        Nothing    -> return ()
         Just "Yes" -> liftIO $ removeFile f
         Just "Y"   -> liftIO $ removeFile f
-        Just _     -> return ()
+        _          -> return ()
 
 --Viewing Logs
 
