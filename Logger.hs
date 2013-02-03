@@ -24,7 +24,7 @@ logsFolder :: String -> IO FilePath
 logsFolder x = liftM (\h -> h ++ "/Dropbox/logs/" ++ x ++ ".hlog") getHomeDirectory
 
 openLog :: String -> IOMode -> IO Handle
-openLog name mode = logsFolder name >>= flip openFile mode
+openLog n m = logsFolder n >>= flip openFile m
 
 --Writing to log files
 
@@ -76,24 +76,23 @@ newLog n = openLog n ReadWriteMode >>= \h -> hPutStrLn h n >> hClose h
 
 removeLog :: String -> InputT IO ()
 removeLog n = do
-    f <- liftIO $ logsFolder n
-    i <- getInputLine $ "Are you sure you want to remove log " ++ show n ++ "? Enter (Y)es or (N)o: "
-    case i of
-        Just "Yes" -> liftIO $ safeRemove f
-        Just "Y"   -> liftIO $ safeRemove f
-        _          -> return ()
-  where safeRemove f = do
-            eitherError <- tryIOError $ removeFile f
-            case eitherError of
-                Left  e -> when (isDoesNotExistError e) $ putStrLn $ "Log " ++ show n ++ " does not exist"
-                Right _ -> return ()
+    f      <- liftIO $ logsFolder n
+    exists <- liftIO $ doesFileExist f
+    if exists
+        then do
+            i <- getInputLine $ "Are you sure you want to remove log " ++ show n ++ "? Enter (Y)es or (N)o: "
+            case i of
+                Just "Yes" -> liftIO $ removeFile f
+                Just "Y"   -> liftIO $ removeFile f
+                _          -> return ()
+        else outputStrLn $ "Log " ++ n ++ " does not exist"
 
 --Viewing Logs
 
 viewLog :: String -> IO ()
 viewLog n = do
     f <- logsFolder n
-    eitherHandle <- tryIOError $ openFile f ReadMode
-    case eitherHandle of
-        Left  e -> when (isDoesNotExistError e) $ putStrLn $ "Log " ++ show n ++ " does not exist"
-        Right h -> hGetContents h >>= putStrLn >> hClose h
+    exists <- doesFileExist f
+    if exists
+        then openFile f ReadMode >>= \h -> hGetContents h >>= putStrLn >> hClose h
+        else putStrLn $ "Log " ++ n ++ " does not exist"
