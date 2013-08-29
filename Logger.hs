@@ -61,11 +61,12 @@ helpLog "view" = putStrLn
     \Action: Displays any log file with the given name"
 helpLog _ = putStrLn
     "Usage:\n\
-    \log edit   <logs>    Edit the given log file.\n\
+    \log edit   <log>     Edit the given log file.\n\
     \log help   <command> If no command is given, display this message.\n\
     \                     Otherwise, display specific help message for a command.\n\
-    \log new    <names>   Creates a log file with the given name.\n\
-    \log remove <logs>    Removes the given log file."
+    \log new    <name>    Creates a log file with the given name.\n\
+    \log remove <log>     Removes the given log file.\n\
+    \log view   <log>     View the given log file."
 
 --Creating logs
 
