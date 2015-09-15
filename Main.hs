@@ -44,7 +44,9 @@ helpJournal _ = putStrLn
     \                         Otherwise, display specific help message for a command.\n\
     \journal new    <name>    Creates a log file with the given name.\n\
     \journal remove <journal> Removes the given log file.\n\
-    \journal view   <journal> View the given log file."
+    \journal view   <journal> View the given log file.\n\
+    \\n\
+    \Also, you must have a folder called \"journals\" in your home directory.\n"
 
 main :: IO ()
 main = do
